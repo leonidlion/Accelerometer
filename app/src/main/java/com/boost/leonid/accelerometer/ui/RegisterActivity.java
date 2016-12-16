@@ -85,7 +85,6 @@ public class RegisterActivity extends BaseActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUser: " + task.isSuccessful());
                         hideProgressDialog();
                         if (task.isSuccessful()){
                             onSignupSuccess(task.getResult().getUser(), name);
@@ -108,7 +107,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), R.string.register_fail, Toast.LENGTH_LONG).show();
         mSignupBtn.setEnabled(true);
     }
     private boolean validate() {
@@ -119,21 +118,21 @@ public class RegisterActivity extends BaseActivity {
         String password = mInputPasswordEdit.getText().toString();
 
         if (name.isEmpty() || name.length() < 3) {
-            mInputNameEdit.setError("at least 3 characters");
+            mInputNameEdit.setError(getString(R.string.name_input_error));
             valid = false;
         } else {
             mInputNameEdit.setError(null);
         }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            mInputEmailEdit.setError("enter a valid email address");
+            mInputEmailEdit.setError(getString(R.string.email_input_error));
             valid = false;
         } else {
             mInputEmailEdit.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            mInputPasswordEdit.setError("between 4 and 10 alphanumeric characters");
+            mInputPasswordEdit.setError(getString(R.string.pass_input_error));
             valid = false;
         } else {
             mInputPasswordEdit.setError(null);
