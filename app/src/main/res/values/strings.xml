@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Accelerometer</string>
+
+    <!--TABS TITLES-->
+    <string-array name="tab_titles">
+        <item name="tab_list">List</item>
+        <item name="tab_graph">Graph</item>
+    </string-array>
+    <!--END TAB TITLE-->
+
 </resources>
