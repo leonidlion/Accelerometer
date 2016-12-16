@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "637509435493",
+    "firebase_url": "https://accelerometer-firebase.firebaseio.com",
+    "project_id": "accelerometer-firebase",
+    "storage_bucket": "accelerometer-firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637509435493:android:b1aa663535e12444",
+        "android_client_info": {
+          "package_name": "com.boost.leonid.accelerometer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637509435493-r09agv6sii2utlso2utpt4ebr3pme1td.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD23_ec-MZ4gvVxTkJXXSicICZklnweLj4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637509435493-r09agv6sii2utlso2utpt4ebr3pme1td.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
