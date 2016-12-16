@@ -5,6 +5,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.boost.leonid.accelerometer.R;
@@ -84,6 +88,23 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     @Override
     public void onItemClick(String refKey) {
         mViewPager.setCurrentItem(TAB_GRAPH, true);
+        Log.d(TAG, refKey);
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_logout:
+                break;
+            case R.id.menu_settings:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
