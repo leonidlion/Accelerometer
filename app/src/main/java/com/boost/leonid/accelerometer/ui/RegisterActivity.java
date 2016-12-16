@@ -1,4 +1,4 @@
-package com.boost.leonid.accelerometer;
+package com.boost.leonid.accelerometer.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boost.leonid.accelerometer.R;
+import com.boost.leonid.accelerometer.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -19,18 +21,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.Serializable;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- * Created by leonid on 15.12.16.
- */
-
-public class SignUpActivity extends BaseActivity {
-    private static final String TAG = "SignUpActivity";
+public class RegisterActivity extends BaseActivity {
+    private static final String TAG = "RegisterActivity";
     private static final int LAYOUT = R.layout.activity_sign_up;
 
     private DatabaseReference mDatabase;
@@ -55,7 +51,10 @@ public class SignUpActivity extends BaseActivity {
                 signUp();
                 break;
             case R.id.link_login:
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
                 finish();
+                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                 break;
         }
     }
@@ -75,9 +74,7 @@ public class SignUpActivity extends BaseActivity {
         if (!validate()){
             return;
         }
-
         mSignupBtn.setEnabled(false);
-
         showProgressDialog();
 
         final String name = mInputNameEdit.getText().toString();
@@ -90,29 +87,26 @@ public class SignUpActivity extends BaseActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "createUser: " + task.isSuccessful());
                         hideProgressDialog();
-
                         if (task.isSuccessful()){
-                            onSignupSuccess(task.getResult().getUser());
+                            onSignupSuccess(task.getResult().getUser(), name);
                         }else {
                             onSignupFailed();
                         }
                     }
                 });
     }
-    private String usernameFromEmail(String email){
-        if (email.contains("@")){
-            return email.split("@")[0];
-        }else {
-            return email;
-        }
-    }
-    private void onSignupSuccess(FirebaseUser user) {
+    private void onSignupSuccess(FirebaseUser user, String name) {
         mSignupBtn.setEnabled(true);
-
-
+        writeNewUser(user.getUid(), name, user.getEmail());
         setResult(RESULT_OK, null);
         finish();
     }
+
+    private void writeNewUser(String uid, String name, String email) {
+        User user = new User(name, email);
+        mDatabase.child("users").child(uid).setValue(user);
+    }
+
     private void onSignupFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
         mSignupBtn.setEnabled(true);

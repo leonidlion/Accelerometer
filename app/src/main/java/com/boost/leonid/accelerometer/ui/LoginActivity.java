@@ -1,4 +1,4 @@
-package com.boost.leonid.accelerometer;
+package com.boost.leonid.accelerometer.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boost.leonid.accelerometer.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -23,12 +24,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- * Created by leonid on 15.12.16.
- */
 
-public class SignInActivity extends BaseActivity{
-    private static final String TAG = "SignInActivity";
+public class LoginActivity extends BaseActivity{
+    private static final String TAG = "LoginActivity";
     private static final int LAYOUT = R.layout.activity_sign_in;
     private static final int REQUEST_SIGN_UP = 0;
 
@@ -52,8 +50,9 @@ public class SignInActivity extends BaseActivity{
                 signIn();
                 break;
             case R.id.link_signup:
-                Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+                Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
                 startActivityForResult(intent, REQUEST_SIGN_UP);
+                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                 break;
         }
     }
@@ -75,9 +74,9 @@ public class SignInActivity extends BaseActivity{
     protected void onStart() {
         super.onStart();
 
-        if (mAuth.getCurrentUser() != null){
+       /* if (mAuth.getCurrentUser() != null){
             onAuthSuccess();
-        }
+        }*/
     }
 
     private void signIn(){
@@ -101,7 +100,7 @@ public class SignInActivity extends BaseActivity{
                         if (task.isSuccessful()){
                             onAuthSuccess();
                         } else {
-                            Toast.makeText(SignInActivity.this, "Sign in Failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Sign in Failed", Toast.LENGTH_SHORT).show();
                             mLoginBtn.setEnabled(true);
                         }
                     }
@@ -109,7 +108,9 @@ public class SignInActivity extends BaseActivity{
     }
 
     private void onAuthSuccess(){
-//        startActivity(new Intent(this, MainActivity.class));
+        Log.d(TAG, "Auth success");
+        startActivity(new Intent(this, MainActivity.class));
+        this.finish();
     }
 
     private boolean validateForm(){
@@ -135,8 +136,7 @@ public class SignInActivity extends BaseActivity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGN_UP){
             if (resultCode == RESULT_OK){
-
-                this.finish();
+                onAuthSuccess();
             }
         }
     }

@@ -1,13 +1,9 @@
-package com.boost.leonid.accelerometer;
+package com.boost.leonid.accelerometer.ui;
 
 import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-
-/**
- * Created by leonid on 15.12.16.
- */
 
 public class BaseActivity extends AppCompatActivity {
     private ProgressDialog mProgressDialog;
