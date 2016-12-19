@@ -2,12 +2,13 @@
     <string name="app_name">Accelerometer</string>
 
     <!--Menu items-->
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
     <string name="menu_logout">Logout</string>
     <string name="menu_settings">Settings</string>
     <!--End menu item-->
 
     <string name="signin_fail">Sign in Failed</string>
-
 
     <!--TABS TITLES-->
     <string-array name="tab_titles">
@@ -22,6 +23,6 @@
     <string name="name_input_error">at least 3 characters</string>
     <string name="email_input_error">enter a valid email address</string>
     <string name="pass_input_error">between 4 and 10 alphanumeric characters</string>
-    <!--End register activity-->
+    <string name="title_activity_settings">Settings</string>
 
 </resources>
