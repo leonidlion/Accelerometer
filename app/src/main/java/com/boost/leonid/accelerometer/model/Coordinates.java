@@ -7,7 +7,8 @@ import java.util.Map;
 
 public class Coordinates {
     private String date;
-    private String time;
+    private String startTime;
+    private String endTime;
     private List<Float> x;
     private List<Float> y;
     private List<Float> z;
@@ -17,9 +18,9 @@ public class Coordinates {
         // required for calls getValue(Coordinates.class)
     }
 
-    public Coordinates(String date, String time, String model) {
+    public Coordinates(String date, String startTime, String model) {
         this.date = date;
-        this.time = time;
+        this.startTime = startTime;
         this.model = model;
         x = new ArrayList<>();
         y = new ArrayList<>();
@@ -39,12 +40,20 @@ public class Coordinates {
         this.date = date;
     }
 
-    public String getTime() {
-        return time;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 
     public List<Float> getX() {
@@ -82,25 +91,11 @@ public class Coordinates {
     public Map<String, Object> allToMap(){
         HashMap<String, Object> result = new HashMap<>();
         result.put("date", date);
-        result.put("time", time);
+        result.put("startTime", startTime);
         result.put("x", x);
         result.put("y", y);
         result.put("z", z);
         result.put("model", model);
-        return result;
-    }
-    public Map<String, Object> headerToMap(){
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("date", date);
-        result.put("time", time);
-        result.put("model", model);
-        return result;
-    }
-    public Map<String, Object> coordinatesToMap(){
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("x", x);
-        result.put("y", y);
-        result.put("z", z);
         return result;
     }
 }
