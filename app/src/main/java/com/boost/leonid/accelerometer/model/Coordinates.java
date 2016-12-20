@@ -16,14 +16,7 @@ public class Coordinates {
     public Coordinates(){
         // required for calls getValue(Coordinates.class)
     }
-    public Coordinates(String date, String time, List<Float> x, List<Float> y, List<Float> z, String model) {
-        this.date = date;
-        this.time = time;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.model = model;
-    }
+
     public Coordinates(String date, String time, String model) {
         this.date = date;
         this.time = time;
@@ -31,13 +24,10 @@ public class Coordinates {
         x = new ArrayList<>();
         y = new ArrayList<>();
         z = new ArrayList<>();
-
     }
     public void addCoord(float[] coordinates){
         x.add(coordinates[0]);
-
         y.add(coordinates[1]);
-
         z.add(coordinates[2]);
     }
 
@@ -87,10 +77,6 @@ public class Coordinates {
 
     public String getModel() {
         return model;
-    }
-
-    public void SetModel(String deviceModel) {
-        this.model = deviceModel;
     }
 
     public Map<String, Object> allToMap(){
