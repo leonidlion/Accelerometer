@@ -1,6 +1,7 @@
 package com.boost.leonid.accelerometer.ui.fragment;
 
 import android.content.Context;
+import android.icu.text.LocaleDisplayNames;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,7 +31,7 @@ public class ListDatesFragment extends Fragment {
     private ClickItemListener mCallback;
 
     public interface ClickItemListener{
-        void onItemClick(String refKey);
+        void onItemClick(Coordinates refKey);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ListDatesFragment extends Fragment {
         Log.d(TAG, query.toString());
         mAdapter = new FirebaseRecyclerAdapter<Coordinates, ListDatesHolder>(Coordinates.class, R.layout.list_dates_item, ListDatesHolder.class, query) {
             @Override
-            protected void populateViewHolder(ListDatesHolder viewHolder, Coordinates model, int position) {
+            protected void populateViewHolder(ListDatesHolder viewHolder, final Coordinates model, int position) {
                 final DatabaseReference ref = getRef(position);
                 final String refKey = ref.getKey();
 
@@ -76,10 +77,9 @@ public class ListDatesFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         Log.d(TAG, "click " + refKey);
-                        mCallback.onItemClick(refKey);
+                        mCallback.onItemClick(model);
                     }
                 });
-
                 viewHolder.bind(model);
             }
         };
