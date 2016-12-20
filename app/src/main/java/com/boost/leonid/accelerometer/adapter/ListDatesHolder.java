@@ -20,6 +20,6 @@ public class ListDatesHolder extends RecyclerView.ViewHolder {
     }
     public void bind(Coordinates coordinates){
         mDate.setText(coordinates.getDate());
-        mTime.setText(coordinates.getTime());
+        mTime.setText(coordinates.getStartTime());
     }
 }
