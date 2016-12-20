@@ -3,7 +3,6 @@ package com.boost.leonid.accelerometer.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,19 +11,22 @@ import android.view.MenuItem;
 
 import com.boost.leonid.accelerometer.R;
 import com.boost.leonid.accelerometer.adapter.PagerAdapter;
+import com.boost.leonid.accelerometer.model.Coordinates;
 import com.boost.leonid.accelerometer.service.AccService;
 import com.boost.leonid.accelerometer.ui.fragment.ListDatesFragment;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.List;
 
 import butterknife.BindView;
 
 public class MainActivity extends BaseActivity implements ListDatesFragment.ClickItemListener{
     private static final String TAG = "MainActivity";
 
-    private FragmentPagerAdapter mPagerAdapter;
+    private PagerAdapter mPagerAdapter;
     private static final int TAB_LIST_DATES = 0;
     private static final int TAB_GRAPH      = 1;
-
+    private Bundle mBundle = new Bundle();
     /**
      * Init views
      */
@@ -40,7 +42,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
 
         initToolbar();
 
-        mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.tab_titles));
+        mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.tab_titles), mBundle);
         mViewPager = (ViewPager) findViewById(R.id.main_pager);
         mViewPager.setAdapter(mPagerAdapter);
 
@@ -55,11 +57,25 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     }
 
     @Override
-    public void onItemClick(String refKey) {
+    public void onItemClick(Coordinates model) {
+        Log.d(TAG, "onItemClick");
+        mBundle.clear();
+        mBundle.putFloatArray("x", listToArray(model.getX()));
+        mBundle.putFloatArray("y", listToArray(model.getY()));
+        mBundle.putFloatArray("z", listToArray(model.getZ()));
+
+        mPagerAdapter.updateGraph(mBundle);
+        mPagerAdapter.notifyDataSetChanged();
         mViewPager.setCurrentItem(TAB_GRAPH, true);
-        Log.d(TAG, refKey);
     }
 
+    private float[] listToArray(List<Float> list){
+        float[] coordinates = new float[list.size()];
+        for (int i = 0; i < coordinates.length; i++){
+            coordinates[i] = list.get(i);
+        }
+        return coordinates;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
