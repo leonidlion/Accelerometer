@@ -25,4 +25,20 @@
     <string name="pass_input_error">between 4 and 10 alphanumeric characters</string>
     <string name="title_activity_settings">Settings</string>
 
+    <!--CheckBox Text-->
+    <string name="check_x">X</string>
+    <string name="check_y">Y</string>
+    <string name="check_z">Z</string>
+    <!--End CheckBox Text-->
+    
+    <!--Settings items-->
+    <string name="set_interval">Interval</string>
+    <string name="set_run_time">Start time</string>
+    <string name="set_session_length">Set session length</string>
+    <string name="set_delete_data">Erase all data</string>
+
+    <!--Graph no data titles-->
+    <string name="graph_title_data_empty">No data to view</string>
+    <string name="graph_title_choice_axis">Please choice axis</string>
+    <!--End graph no data titles-->
 </resources>
