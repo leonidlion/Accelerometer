@@ -3,6 +3,7 @@ package com.boost.leonid.accelerometer.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,10 +13,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.boost.leonid.accelerometer.model.Coordinates;
+import com.boost.leonid.accelerometer.ui.settings.SettingsFragment;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
@@ -30,30 +33,36 @@ public class AccService extends Service implements SensorEventListener{
 
     public static final String EXTRA_USER_ID = "user_id";
 
-    private static final int SAVE_DELAY_MS = 5000;
     private static final String EXTRA_MSG_ARRAY = "ARRAY";
 
     private FirebaseDatabase mDatabase;
+    private int mInterval;
     private SensorManager mSensorManager;
     private String mUser_id;
-    private String mStartDate, mStartTime, mEndTime;
+    private String mStartDate, mStartTime;
     private String mStartKey;
     private Map<String, Object> mapToInsert = new HashMap<>();
     private Coordinates mCoordinates;
     private Handler mHandler;
     private Bundle mBundle;
+    private SharedPreferences mPreferences;
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
         initStartDateTime();
+
         mUser_id = intent.getStringExtra(EXTRA_USER_ID);
+
         mDatabase = FirebaseDatabase.getInstance();
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
         mStartKey = mDatabase.getReference().child("users").child(mUser_id).child("acc_data").push().getKey();
-        mCoordinates = new Coordinates(mStartDate, mStartTime, Build.MODEL);
+        mInterval = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_INTERVAL, ""));
+        mCoordinates = new Coordinates(mStartDate, mStartTime, Build.MODEL, mInterval);
         mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -72,6 +81,8 @@ public class AccService extends Service implements SensorEventListener{
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         mBundle = new Bundle();
 
         mHandler = new Handler(){
@@ -98,10 +109,8 @@ public class AccService extends Service implements SensorEventListener{
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mEndTime = new SimpleDateFormat("hh:mm:ss", Locale.getDefault()).format(new Date());
         mSensorManager.unregisterListener(this);
         mHandler.removeCallbacksAndMessages(null);
-        mDatabase.getReference().child("users").child(mUser_id).child("acc_data").child(mStartKey).child("endTime").setValue(mEndTime);
     }
 
     @Nullable
@@ -116,10 +125,9 @@ public class AccService extends Service implements SensorEventListener{
         mBundle.putFloatArray(EXTRA_MSG_ARRAY, sensorEvent.values);
         Message msg = new Message();
         msg.setData(mBundle);
-        mHandler.sendMessageDelayed(msg, SAVE_DELAY_MS);
+        mHandler.sendMessageDelayed(msg, mInterval * 1000);
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-
     }
 }
