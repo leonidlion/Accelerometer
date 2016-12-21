@@ -21,6 +21,11 @@
         <activity android:name=".ui.RegisterActivity"/>
 
         <service android:name=".service.AccService"/>
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:label="@string/menu_settings">
+        </activity>
     </application>
 
 </manifest>

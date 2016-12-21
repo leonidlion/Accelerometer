@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <PreferenceCategory
+        android:title="Service settings">
+        <ListPreference
+            android:key="pref_list_interval"
+            android:title="@string/set_interval"
+            android:entries="@array/set_arr_interval_title"
+            android:entryValues="@array/set_arr_interval_value"
+            android:defaultValue="@string/set_interval_def_value"
+            android:dialogTitle="Choice interval"/>
+        <com.boost.leonid.accelerometer.ui.settings.TimeDialogPreference
+            android:key="pref_time_start"
+            android:title="Time when start"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
