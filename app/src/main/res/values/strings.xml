@@ -23,22 +23,44 @@
     <string name="name_input_error">at least 3 characters</string>
     <string name="email_input_error">enter a valid email address</string>
     <string name="pass_input_error">between 4 and 10 alphanumeric characters</string>
-    <string name="title_activity_settings">Settings</string>
+    <!--End register activity-->
 
     <!--CheckBox Text-->
     <string name="check_x">X</string>
     <string name="check_y">Y</string>
     <string name="check_z">Z</string>
     <!--End CheckBox Text-->
-    
+
     <!--Settings items-->
-    <string name="set_interval">Interval</string>
+    <string name="set_interval">Interval for update</string>
     <string name="set_run_time">Start time</string>
     <string name="set_session_length">Set session length</string>
     <string name="set_delete_data">Erase all data</string>
 
+    <string-array name="set_arr_interval_title">
+        <item>1s</item>
+        <item>2s</item>
+        <item>5s</item>
+        <item>10s</item>
+    </string-array>
+    <string-array name="set_arr_interval_value">
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+    </string-array>
+
+    <string name="set_interval_def_value">5</string>
+    <!--End settings items-->
+
     <!--Graph no data titles-->
     <string name="graph_title_data_empty">No data to view</string>
     <string name="graph_title_choice_axis">Please choice axis</string>
+    <string name="set_time">Set</string>
+    <string name="cancel">Cancel</string>
+    <string name="pref_interval_default">5000</string>
     <!--End graph no data titles-->
+
+
+
 </resources>
