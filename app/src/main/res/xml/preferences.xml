@@ -13,7 +13,10 @@
         <com.boost.leonid.accelerometer.ui.settings.TimeDialogPreference
             android:key="pref_time_start"
             android:title="Time when start"/>
-
+        <EditTextPreference
+            android:key="pref_task_duration"
+            android:title="Duration of service operation"
+            android:defaultValue="@string/set_duration_def_value"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
