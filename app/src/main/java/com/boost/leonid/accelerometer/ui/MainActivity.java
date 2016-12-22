@@ -25,7 +25,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     private static final String TAG = "MainActivity";
 
     private PagerAdapter mPagerAdapter;
-    private static final int TAB_GRAPH      = 0;
+    private static final int TAB_GRAPH    = 1;
     private Bundle mBundle = new Bundle();
     /**
      * Init views
