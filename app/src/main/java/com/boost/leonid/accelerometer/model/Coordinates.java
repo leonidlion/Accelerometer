@@ -8,7 +8,7 @@ import java.util.Map;
 public class Coordinates {
     private String date;
     private String startTime;
-    private String endTime;
+    private int interval;
     private List<Float> x;
     private List<Float> y;
     private List<Float> z;
@@ -18,9 +18,10 @@ public class Coordinates {
         // required for calls getValue(Coordinates.class)
     }
 
-    public Coordinates(String date, String startTime, String model) {
+    public Coordinates(String date, String startTime, String model, int interval) {
         this.date = date;
         this.startTime = startTime;
+        this.interval = interval;
         this.model = model;
         x = new ArrayList<>();
         y = new ArrayList<>();
@@ -48,12 +49,12 @@ public class Coordinates {
         this.startTime = startTime;
     }
 
-    public String getEndTime() {
-        return endTime;
+    public int getInterval() {
+        return interval;
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
     public List<Float> getX() {
@@ -92,6 +93,7 @@ public class Coordinates {
         HashMap<String, Object> result = new HashMap<>();
         result.put("date", date);
         result.put("startTime", startTime);
+        result.put("interval", interval);
         result.put("x", x);
         result.put("y", y);
         result.put("z", z);

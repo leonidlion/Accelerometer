@@ -2,6 +2,7 @@ package com.boost.leonid.accelerometer.ui.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class GraphFragment extends Fragment {
     private static final int Y_AXIS = 1;
     private static final int Z_AXIS = 2;
 
+    private int mInterval = 1000;
     private List<Entry> mEntryListX;
     private List<Entry> mEntryListY;
     private List<Entry> mEntryListZ;
@@ -96,16 +98,18 @@ public class GraphFragment extends Fragment {
     }
 
     private void initAxisDataEntry() {
+        mInterval = getArguments().getInt("interval");
         mEntryListX = getAxis(getArguments().getFloatArray("x"));
         mEntryListY = getAxis(getArguments().getFloatArray("y"));
         mEntryListZ = getAxis(getArguments().getFloatArray("z"));
+        Log.d(TAG, String.valueOf(mInterval));
     }
 
     private void initCheckListener() {
         mCheckBoxX.setVisibility(View.VISIBLE);
         mCheckBoxY.setVisibility(View.VISIBLE);
         mCheckBoxZ.setVisibility(View.VISIBLE);
-
+        mLineData.clearValues();
         mCheckBoxX.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             LineDataSet dataX = getDataSet(mEntryListX, X_AXIS, Color.RED);
             @Override
@@ -186,16 +190,14 @@ public class GraphFragment extends Fragment {
     private List<Entry> getAxis(float[] axis){
         List<Entry> list = new ArrayList<>();
 
-        int sizeList = axis.length;
-        int time = sizeList * 5; // TODO 5 take from settings
-
-        int timeArr[] = new int[sizeList];
+        int sizeTimeList = axis.length;
+        int timeArr[] = new int[sizeTimeList];
         timeArr[0] = 0;
         for (int i = 1; i < timeArr.length; i++){
-            timeArr[i] = i * 5;
+            timeArr[i] = i * mInterval;
         }
 
-        for (int i = 0; i < sizeList; i++){
+        for (int i = 0; i < sizeTimeList; i++){
             list.add(new Entry(timeArr[i], axis[i]));
         }
 

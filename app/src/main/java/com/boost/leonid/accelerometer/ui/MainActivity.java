@@ -1,7 +1,9 @@
 package com.boost.leonid.accelerometer.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +16,8 @@ import com.boost.leonid.accelerometer.adapter.PagerAdapter;
 import com.boost.leonid.accelerometer.model.Coordinates;
 import com.boost.leonid.accelerometer.service.AccService;
 import com.boost.leonid.accelerometer.ui.fragment.ListDatesFragment;
+import com.boost.leonid.accelerometer.ui.settings.SettingsActivity;
+import com.boost.leonid.accelerometer.ui.settings.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
@@ -59,10 +63,12 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     @Override
     public void onItemClick(Coordinates model) {
         Log.d(TAG, "onItemClick");
+
         mBundle.clear();
         mBundle.putFloatArray("x", listToArray(model.getX()));
         mBundle.putFloatArray("y", listToArray(model.getY()));
         mBundle.putFloatArray("z", listToArray(model.getZ()));
+        mBundle.putInt("interval", model.getInterval());
 
         mPagerAdapter.updateGraph(mBundle);
         mPagerAdapter.notifyDataSetChanged();
@@ -99,6 +105,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
                 finish();
                 break;
             case R.id.menu_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
