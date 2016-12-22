@@ -49,18 +49,16 @@
         <item>5</item>
         <item>10</item>
     </string-array>
-
+    <string name="pref_interval_default">5000</string>
+    <string name="set_duration_def_value">20</string>
     <string name="set_interval_def_value">5</string>
+    <string name="set_time">Set</string>
+    <string name="cancel">Cancel</string>
     <!--End settings items-->
 
     <!--Graph no data titles-->
     <string name="graph_title_data_empty">No data to view</string>
     <string name="graph_title_choice_axis">Please choice axis</string>
-    <string name="set_time">Set</string>
-    <string name="cancel">Cancel</string>
-    <string name="pref_interval_default">5000</string>
     <!--End graph no data titles-->
-
-
 
 </resources>
