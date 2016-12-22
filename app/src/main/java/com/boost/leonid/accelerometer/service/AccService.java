@@ -1,5 +1,7 @@
 package com.boost.leonid.accelerometer.service;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -17,11 +19,14 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.boost.leonid.accelerometer.R;
 import com.boost.leonid.accelerometer.model.Coordinates;
 import com.boost.leonid.accelerometer.ui.settings.SettingsFragment;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -30,29 +35,62 @@ import java.util.Map;
 
 public class AccService extends Service implements SensorEventListener{
     private static final String TAG = "AccService";
-
-    public static final String EXTRA_USER_ID = "user_id";
-
     private static final String EXTRA_MSG_ARRAY = "ARRAY";
 
+    private static SharedPreferences mPreferences;
     private FirebaseDatabase mDatabase;
-    private int mInterval;
     private SensorManager mSensorManager;
-    private String mUser_id;
-    private String mStartDate, mStartTime;
-    private String mStartKey;
-    private Map<String, Object> mapToInsert = new HashMap<>();
     private Coordinates mCoordinates;
     private Handler mHandler;
     private Bundle mBundle;
-    private SharedPreferences mPreferences;
+    private int mInterval;
+    private String mUser_id;
+    private String mStartDate, mStartTime;
+    private String mRootKeyOfAccData;
+    private static boolean isRunning;
 
+    private Map<String, Object> mMapToInsert = new HashMap<>();
+    private int mRemainingTime;
+    public static final String EXTRA_USER_ID = "user_id";
+
+
+    public static void setServiceAlarm(Context context, boolean isOn) {
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        long startAtTime = mPreferences.getLong(SettingsFragment.KEY_PREF_TIME_WHEN_START, 0);
+        Log.d(TAG, String.valueOf(startAtTime));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(startAtTime);
+
+        Intent i = new Intent(context, AccService.class);
+        i.putExtra(EXTRA_USER_ID, FirebaseAuth.getInstance().getCurrentUser().getUid());
+        PendingIntent pi = PendingIntent.getService(
+                context, 0, i, 0);
+
+        AlarmManager alarmManager = (AlarmManager)
+                context.getSystemService(Context.ALARM_SERVICE);
+
+        if (isOn) {
+            isRunning = true;
+            alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pi);
+            Log.d(TAG, "start alarm");
+        } else {
+            isRunning = false;
+            alarmManager.cancel(pi);
+            pi.cancel();
+            Log.d(TAG, "stop alarm");
+        }
+    }
+    public static boolean isServiceAlarmOn(Context context) {
+        Intent i = new Intent(context, AccService.class);
+        PendingIntent pi = PendingIntent.getService(
+                context, 0, i, PendingIntent.FLAG_NO_CREATE);
+        return pi != null;
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
         initStartDateTime();
-
         mUser_id = intent.getStringExtra(EXTRA_USER_ID);
 
         mDatabase = FirebaseDatabase.getInstance();
@@ -60,10 +98,12 @@ public class AccService extends Service implements SensorEventListener{
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        mStartKey = mDatabase.getReference().child("users").child(mUser_id).child("acc_data").push().getKey();
-        mInterval = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_INTERVAL, ""));
+        mRootKeyOfAccData = mDatabase.getReference().child("users").child(mUser_id).child("acc_data").push().getKey();
+        mInterval = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_INTERVAL, getString(R.string.set_interval_def_value)));
+        mRemainingTime = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_TIME_DURATION, getString(R.string.set_duration_def_value)));
         mCoordinates = new Coordinates(mStartDate, mStartTime, Build.MODEL, mInterval);
-        mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        Log.d(TAG, String.valueOf(mRemainingTime));
+        mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -76,12 +116,10 @@ public class AccService extends Service implements SensorEventListener{
         mStartTime = dateFormat.format(date);
     }
 
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mBundle = new Bundle();
 
@@ -91,14 +129,18 @@ public class AccService extends Service implements SensorEventListener{
                 super.handleMessage(msg);
                 switch (msg.what){
                     case 0:
-                        Log.d(TAG, "handleMessage");
-
-                        mCoordinates.addCoord(msg.getData().getFloatArray(EXTRA_MSG_ARRAY));
-                        mapToInsert.clear();
-                        mapToInsert.put("/users/" + mUser_id + "/acc_data/" + mStartKey, mCoordinates.allToMap());
-                        mDatabase.getReference().updateChildren(mapToInsert);
-
-                        this.removeCallbacksAndMessages(null);
+                        mRemainingTime -= mInterval;
+                        Log.d(TAG, String.valueOf(mRemainingTime));
+                        if (mRemainingTime >= 0) {
+                            Log.d(TAG, "handleMessage");
+                            mCoordinates.addCoord(msg.getData().getFloatArray(EXTRA_MSG_ARRAY));
+                            mMapToInsert.clear();
+                            mMapToInsert.put("/users/" + mUser_id + "/acc_data/" + mRootKeyOfAccData, mCoordinates.allToMap());
+                            mDatabase.getReference().updateChildren(mMapToInsert);
+                            this.removeCallbacksAndMessages(null);
+                        }else {
+                            stopSelf();
+                        }
                         break;
                 }
             }
@@ -111,6 +153,7 @@ public class AccService extends Service implements SensorEventListener{
         Log.d(TAG, "onDestroy");
         mSensorManager.unregisterListener(this);
         mHandler.removeCallbacksAndMessages(null);
+        setServiceAlarm(this, false);
     }
 
     @Nullable
@@ -121,12 +164,17 @@ public class AccService extends Service implements SensorEventListener{
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        mBundle.clear();
-        mBundle.putFloatArray(EXTRA_MSG_ARRAY, sensorEvent.values);
-        Message msg = new Message();
-        msg.setData(mBundle);
-        mHandler.sendMessageDelayed(msg, mInterval * 1000);
+        if (isRunning) {
+            mBundle.clear();
+            mBundle.putFloatArray(EXTRA_MSG_ARRAY, sensorEvent.values);
+            Message msg = new Message();
+            msg.setData(mBundle);
+            mHandler.sendMessageDelayed(msg, mInterval * 1000);
+        }else {
+            stopSelf();
+        }
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
