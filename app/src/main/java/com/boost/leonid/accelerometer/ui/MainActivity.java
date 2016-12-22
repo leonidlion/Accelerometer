@@ -1,9 +1,7 @@
 package com.boost.leonid.accelerometer.ui;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +15,6 @@ import com.boost.leonid.accelerometer.model.Coordinates;
 import com.boost.leonid.accelerometer.service.AccService;
 import com.boost.leonid.accelerometer.ui.fragment.ListDatesFragment;
 import com.boost.leonid.accelerometer.ui.settings.SettingsActivity;
-import com.boost.leonid.accelerometer.ui.settings.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
@@ -28,8 +25,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     private static final String TAG = "MainActivity";
 
     private PagerAdapter mPagerAdapter;
-    private static final int TAB_LIST_DATES = 0;
-    private static final int TAB_GRAPH      = 1;
+    private static final int TAB_GRAPH      = 0;
     private Bundle mBundle = new Bundle();
     /**
      * Init views
@@ -52,9 +48,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
     }
-
     private void initToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
@@ -92,12 +86,16 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_start:
-                Intent intent = new Intent(this, AccService.class);
-                intent.putExtra(AccService.EXTRA_USER_ID, getUid());
-                startService(intent);
+                if (!AccService.isServiceAlarmOn(this)){
+                    AccService.setServiceAlarm(this, true);
+                    Log.d(TAG, "started");
+                }
                 break;
             case R.id.menu_stop:
-                stopService(new Intent(this, AccService.class));
+                if (AccService.isServiceAlarmOn(this)){
+                    AccService.setServiceAlarm(this, false);
+                    Log.d(TAG, "stopped");
+                }
                 break;
             case R.id.menu_logout:
                 FirebaseAuth.getInstance().signOut();
@@ -110,4 +108,5 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
