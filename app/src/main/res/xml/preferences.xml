@@ -16,7 +16,8 @@
         <EditTextPreference
             android:key="pref_task_duration"
             android:title="Duration of service operation"
-            android:defaultValue="@string/set_duration_def_value"/>
+            android:defaultValue="@string/set_duration_def_value"
+            android:inputType="number"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
