@@ -35,55 +35,55 @@ import java.util.Map;
 public class AccService extends Service implements SensorEventListener{
     private static final String TAG = "AccService";
     private static final String EXTRA_MSG_ARRAY = "ARRAY";
+    private static final int MSG_UPDATE_WHAT = 0;
 
+    private static AlarmManager mAlarmManager;
+    private static Calendar sCalendar = Calendar.getInstance();
     private static SharedPreferences mPreferences;
+    private static PendingIntent sPendingIntent;
+    private static boolean isRunning;
+
     private FirebaseDatabase mDatabase;
     private SensorManager mSensorManager;
     private Coordinates mCoordinates;
     private Handler mHandler;
-    private Bundle mBundle;
+    private Bundle mArgsForMessage;
     private int mInterval;
     private String mUser_id;
     private String mStartDate, mStartTime;
     private String mRootKeyOfAccData;
-    private static boolean isRunning;
-
     private Map<String, Object> mMapToInsert = new HashMap<>();
     private int mRemainingTime;
+
     public static final String EXTRA_USER_ID = "user_id";
 
-
-    public static void setServiceAlarm(Context context, boolean isOn) {
+    public static void startAlarmManager(Context context){
+        Log.d(TAG, "startAlarm");
+        isRunning = true;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        Calendar currentCalendar = Calendar.getInstance();
+        initCalendarForAlarm();
+        Intent i = new Intent(context, AccService.class);
+        i.putExtra(EXTRA_USER_ID, FirebaseAuth.getInstance().getCurrentUser().getUid());
+        sPendingIntent = PendingIntent.getService(context, 0, i, 0);
+        mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        mAlarmManager.set(AlarmManager.RTC, sCalendar.getTimeInMillis(), sPendingIntent);
+    }
+
+    private static void initCalendarForAlarm() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(mPreferences.getLong(SettingsFragment.KEY_PREF_TIME_WHEN_START, 0));
 
-        currentCalendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
-        currentCalendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
-        currentCalendar.set(Calendar.SECOND, 0);
-        currentCalendar.set(Calendar.MILLISECOND, 0);
+        sCalendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
+        sCalendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
+        sCalendar.set(Calendar.SECOND, 0);
+        sCalendar.set(Calendar.MILLISECOND, 0);
+    }
 
-        Log.d(TAG, currentCalendar.toString());
-
-        Intent i = new Intent(context, AccService.class);
-        i.putExtra(EXTRA_USER_ID, FirebaseAuth.getInstance().getCurrentUser().getUid());
-        PendingIntent pi = PendingIntent.getService(
-                context, 0, i, 0);
-
-        AlarmManager alarmManager = (AlarmManager)
-                context.getSystemService(Context.ALARM_SERVICE);
-
-        if (isOn) {
-            isRunning = true;
-            alarmManager.set(AlarmManager.RTC, currentCalendar.getTimeInMillis(), pi);
-            Log.d(TAG, "start alarm");
-        } else {
-            isRunning = false;
-            alarmManager.cancel(pi);
-            pi.cancel();
-            Log.d(TAG, "stop alarm");
-        }
+    public static void stopAlarmManager(){
+        Log.d(TAG, "stopAlarm");
+        isRunning = false;
+        mAlarmManager.cancel(sPendingIntent);
+        sPendingIntent.cancel();
     }
     public static boolean isServiceAlarmOn(Context context) {
         Intent i = new Intent(context, AccService.class);
@@ -91,7 +91,6 @@ public class AccService extends Service implements SensorEventListener{
                 context, 0, i, PendingIntent.FLAG_NO_CREATE);
         return pi != null;
     }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
@@ -126,14 +125,14 @@ public class AccService extends Service implements SensorEventListener{
         super.onCreate();
         Log.d(TAG, "onCreate");
 
-        mBundle = new Bundle();
+        mArgsForMessage = new Bundle();
 
         mHandler = new Handler(){
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 switch (msg.what){
-                    case 0:
+                    case MSG_UPDATE_WHAT:
                         mRemainingTime -= mInterval;
                         Log.d(TAG, String.valueOf(mRemainingTime));
                         if (mRemainingTime >= 0) {
@@ -152,13 +151,14 @@ public class AccService extends Service implements SensorEventListener{
         };
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         mSensorManager.unregisterListener(this);
         mHandler.removeCallbacksAndMessages(null);
-        setServiceAlarm(this, false);
+        stopAlarmManager();
     }
 
     @Nullable
@@ -170,10 +170,11 @@ public class AccService extends Service implements SensorEventListener{
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (isRunning) {
-            mBundle.clear();
-            mBundle.putFloatArray(EXTRA_MSG_ARRAY, sensorEvent.values);
+            mArgsForMessage.clear();
+            mArgsForMessage.putFloatArray(EXTRA_MSG_ARRAY, sensorEvent.values);
             Message msg = new Message();
-            msg.setData(mBundle);
+            msg.setData(mArgsForMessage);
+            msg.what = MSG_UPDATE_WHAT;
             mHandler.sendMessageDelayed(msg, mInterval * 1000);
         }else {
             stopSelf();
