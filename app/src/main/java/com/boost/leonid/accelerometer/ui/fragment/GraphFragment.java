@@ -2,7 +2,6 @@ package com.boost.leonid.accelerometer.ui.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -35,10 +34,16 @@ public class GraphFragment extends Fragment {
     private static final int Z_AXIS = 2;
 
     private int mInterval = 1000;
+
     private List<Entry> mEntryListX;
     private List<Entry> mEntryListY;
     private List<Entry> mEntryListZ;
     private LineData mLineData = new LineData();
+
+    public static final String BUNDLE_X = "x";
+    public static final String BUNDLE_Y = "y";
+    public static final String BUNDLE_Z = "z";
+    public static final String BUNDLE_INTERVAL = "interval";
 
     @BindView(R.id.line_graph)
     LineChart mChart;
@@ -98,10 +103,10 @@ public class GraphFragment extends Fragment {
     }
 
     private void initAxisDataEntry() {
-        mInterval = getArguments().getInt("interval");
-        mEntryListX = getAxis(getArguments().getFloatArray("x"));
-        mEntryListY = getAxis(getArguments().getFloatArray("y"));
-        mEntryListZ = getAxis(getArguments().getFloatArray("z"));
+        mInterval = getArguments().getInt(BUNDLE_INTERVAL);
+        mEntryListX = floatArrayToListEntry(getArguments().getFloatArray(BUNDLE_X));
+        mEntryListY = floatArrayToListEntry(getArguments().getFloatArray(BUNDLE_Y));
+        mEntryListZ = floatArrayToListEntry(getArguments().getFloatArray(BUNDLE_Z));
         Log.d(TAG, String.valueOf(mInterval));
     }
 
@@ -187,7 +192,7 @@ public class GraphFragment extends Fragment {
         return dataSet;
     }
 
-    private List<Entry> getAxis(float[] axis){
+    private List<Entry> floatArrayToListEntry(float[] axis){
         List<Entry> list = new ArrayList<>();
 
         int sizeTimeList = axis.length;
