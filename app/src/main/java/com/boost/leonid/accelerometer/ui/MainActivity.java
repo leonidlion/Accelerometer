@@ -28,6 +28,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     private PagerAdapter mPagerAdapter;
     private static final int TAB_GRAPH    = 1;
     private Bundle mBundle = new Bundle();
+    private Menu mMenu;
     /**
      * Init views
      */
@@ -80,6 +81,8 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.menu_stop).setEnabled(false);
+        mMenu = menu;
         return true;
     }
 
@@ -88,14 +91,17 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
         switch (item.getItemId()){
             case R.id.menu_start:
                 if (!AccService.isServiceAlarmOn(this)){
-                    AccService.setServiceAlarm(this, true);
-                    Log.d(TAG, "started");
+                    AccService.startAlarmManager(this);
+                    mMenu.findItem(R.id.menu_stop).setEnabled(true);
+                    item.setEnabled(false);
                 }
                 break;
             case R.id.menu_stop:
                 if (AccService.isServiceAlarmOn(this)){
-                    AccService.setServiceAlarm(this, false);
+                    AccService.stopAlarmManager();
                     Log.d(TAG, "stopped");
+                    mMenu.findItem(R.id.menu_start).setEnabled(true);
+                    item.setEnabled(false);
                 }
                 break;
             case R.id.menu_logout:
