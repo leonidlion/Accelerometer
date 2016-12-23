@@ -29,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 
@@ -56,10 +55,16 @@ public class AccService extends Service implements SensorEventListener{
 
     public static void setServiceAlarm(Context context, boolean isOn) {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        long startAtTime = mPreferences.getLong(SettingsFragment.KEY_PREF_TIME_WHEN_START, 0);
-        Log.d(TAG, String.valueOf(startAtTime));
+        Calendar currentCalendar = Calendar.getInstance();
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(startAtTime);
+        calendar.setTimeInMillis(mPreferences.getLong(SettingsFragment.KEY_PREF_TIME_WHEN_START, 0));
+
+        currentCalendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
+        currentCalendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
+        currentCalendar.set(Calendar.SECOND, 0);
+        currentCalendar.set(Calendar.MILLISECOND, 0);
+
+        Log.d(TAG, currentCalendar.toString());
 
         Intent i = new Intent(context, AccService.class);
         i.putExtra(EXTRA_USER_ID, FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -71,7 +76,7 @@ public class AccService extends Service implements SensorEventListener{
 
         if (isOn) {
             isRunning = true;
-            alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pi);
+            alarmManager.set(AlarmManager.RTC, currentCalendar.getTimeInMillis(), pi);
             Log.d(TAG, "start alarm");
         } else {
             isRunning = false;
@@ -109,10 +114,10 @@ public class AccService extends Service implements SensorEventListener{
 
     private void initStartDateTime() {
         Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         mStartDate = dateFormat.format(date);
 
-        dateFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
+        dateFormat = new SimpleDateFormat("HH:mm:ss");
         mStartTime = dateFormat.format(date);
     }
 
