@@ -13,6 +13,7 @@ import com.boost.leonid.accelerometer.R;
 import com.boost.leonid.accelerometer.adapter.PagerAdapter;
 import com.boost.leonid.accelerometer.model.Coordinates;
 import com.boost.leonid.accelerometer.service.AccService;
+import com.boost.leonid.accelerometer.ui.fragment.GraphFragment;
 import com.boost.leonid.accelerometer.ui.fragment.ListDatesFragment;
 import com.boost.leonid.accelerometer.ui.settings.SettingsActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -59,10 +60,10 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
         Log.d(TAG, "onItemClick");
 
         mBundle.clear();
-        mBundle.putFloatArray("x", listToArray(model.getX()));
-        mBundle.putFloatArray("y", listToArray(model.getY()));
-        mBundle.putFloatArray("z", listToArray(model.getZ()));
-        mBundle.putInt("interval", model.getInterval());
+        mBundle.putFloatArray(GraphFragment.BUNDLE_X, listToArray(model.getX()));
+        mBundle.putFloatArray(GraphFragment.BUNDLE_Y, listToArray(model.getY()));
+        mBundle.putFloatArray(GraphFragment.BUNDLE_Z, listToArray(model.getZ()));
+        mBundle.putInt(GraphFragment.BUNDLE_INTERVAL, model.getInterval());
 
         mPagerAdapter.updateGraph(mBundle);
         mPagerAdapter.notifyDataSetChanged();
