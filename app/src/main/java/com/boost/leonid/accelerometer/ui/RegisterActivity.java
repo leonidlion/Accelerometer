@@ -101,6 +101,7 @@ public class RegisterActivity extends BaseActivity {
         finish();
     }
 
+    // todo save all child references in constants
     private void writeNewUser(String uid, String name, String email) {
         User user = new User(name, email);
         mDatabase.child("users").child(uid).setValue(user);

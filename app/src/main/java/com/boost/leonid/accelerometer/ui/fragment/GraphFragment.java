@@ -121,7 +121,7 @@ public class GraphFragment extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b){
                     Log.d(TAG, "x check");
-
+                    // first time action
                     mLineData.addDataSet(dataX);
                     mChart.setData(mLineData);
                     mChart.animateX(1000);
@@ -138,6 +138,7 @@ public class GraphFragment extends Fragment {
             LineDataSet data = getDataSet(mEntryListY, Y_AXIS, Color.GREEN);
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                // second time action
                 if (b){
                     Log.d(TAG, "y check");
                     mLineData.addDataSet(data);
@@ -156,6 +157,7 @@ public class GraphFragment extends Fragment {
             LineDataSet data = getDataSet(mEntryListZ, Z_AXIS, Color.BLUE);
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                // third time action
                 if (b){
                     Log.d(TAG, "z check");
                     mLineData.addDataSet(data);

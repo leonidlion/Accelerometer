@@ -56,6 +56,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
         setSupportActionBar(mToolbar);
     }
 
+    // todo method name confusing
     @Override
     public void onItemClick(Coordinates model) {
         Log.d(TAG, "onItemClick");

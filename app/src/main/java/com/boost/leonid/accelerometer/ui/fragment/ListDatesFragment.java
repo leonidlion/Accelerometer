@@ -1,7 +1,6 @@
 package com.boost.leonid.accelerometer.ui.fragment;
 
 import android.content.Context;
-import android.icu.text.LocaleDisplayNames;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,7 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
-
+// SessionsListFragment
 public class ListDatesFragment extends Fragment {
     private static final String TAG = "ListDatesFragment";
     private static final int LAYOUT = R.layout.fragment_list_dates;
@@ -30,7 +29,9 @@ public class ListDatesFragment extends Fragment {
     private DatabaseReference mDatabase;
     private ClickItemListener mCallback;
 
+    // todo rename to SessionsListFragmentInteractionListener
     public interface ClickItemListener{
+        // todo rename to onSessionClick
         void onItemClick(Coordinates refKey);
     }
 
@@ -67,6 +68,7 @@ public class ListDatesFragment extends Fragment {
 
         Query query = getQuery(mDatabase);
         Log.d(TAG, query.toString());
+        // todo selected session different color
         mAdapter = new FirebaseRecyclerAdapter<Coordinates, ListDatesHolder>(Coordinates.class, R.layout.list_dates_item, ListDatesHolder.class, query) {
             @Override
             protected void populateViewHolder(ListDatesHolder viewHolder, final Coordinates model, int position) {

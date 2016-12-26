@@ -88,6 +88,7 @@ public class AccService extends Service implements SensorEventListener{
     public static boolean isServiceAlarmOn(Context context) {
         Intent i = new Intent(context, AccService.class);
         PendingIntent pi = PendingIntent.getService(
+                //todo hardcoded request code
                 context, 0, i, PendingIntent.FLAG_NO_CREATE);
         return pi != null;
     }
@@ -102,12 +103,14 @@ public class AccService extends Service implements SensorEventListener{
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        // todo hardcoded child nodes
         mRootKeyOfAccData = mDatabase.getReference().child("users").child(mUser_id).child("acc_data").push().getKey();
         mInterval = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_INTERVAL, getString(R.string.set_interval_def_value)));
         mRemainingTime = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_TIME_DURATION, getString(R.string.set_duration_def_value)));
         mCoordinates = new Coordinates(mStartDate, mStartTime, Build.MODEL, mInterval);
         Log.d(TAG, String.valueOf(mRemainingTime));
         mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
+        // todo restart flags check
         return super.onStartCommand(intent, flags, startId);
     }
 
