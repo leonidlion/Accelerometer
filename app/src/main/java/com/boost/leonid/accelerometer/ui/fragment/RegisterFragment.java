@@ -1,11 +1,13 @@
-package com.boost.leonid.accelerometer.ui;
+package com.boost.leonid.accelerometer.ui.fragment;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,18 +27,23 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class RegisterActivity extends BaseActivity {
-    private static final String TAG = "RegisterActivity";
-    private static final int LAYOUT = R.layout.activity_sign_up;
+public class RegisterFragment extends BaseFragment {
+    private static final String TAG = "RegisterFragment";
+    private static final int LAYOUT = R.layout.fragment_sign_up;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
+    private RegisterActionListener mCallback;
 
+    public interface RegisterActionListener{
+        void onAlreadyMemberClick();
+        void onSignUpClick();
+    }
     @BindView(R.id.input_name)
     EditText mInputNameEdit;
-    @BindView(R.id.input_email)
+    @BindView(R.id.et_input_email)
     EditText mInputEmailEdit;
-    @BindView(R.id.input_password)
+    @BindView(R.id.et_input_password)
     EditText mInputPasswordEdit;
     @BindView(R.id.btn_signup)
     Button mSignupBtn;
@@ -51,23 +58,32 @@ public class RegisterActivity extends BaseActivity {
                 signUp();
                 break;
             case R.id.link_login:
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+                mCallback.onAlreadyMemberClick();
                 break;
         }
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(LAYOUT);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (RegisterActionListener) context;
+    }
 
-        ButterKnife.bind(this);
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(LAYOUT, container, false);
+        ButterKnife.bind(this, view);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        return view;
     }
 
     private void signUp(){
@@ -82,23 +98,23 @@ public class RegisterActivity extends BaseActivity {
         final String password = mInputPasswordEdit.getText().toString();
 
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         hideProgressDialog();
                         if (task.isSuccessful()){
-                            onSignupSuccess(task.getResult().getUser(), name);
+                            onSignUpSuccess(task.getResult().getUser(), name);
                         }else {
-                            onSignupFailed();
+                            onSignUpFailed();
                         }
                     }
                 });
     }
-    private void onSignupSuccess(FirebaseUser user, String name) {
+    private void onSignUpSuccess(FirebaseUser user, String name) {
         mSignupBtn.setEnabled(true);
         writeNewUser(user.getUid(), name, user.getEmail());
-        setResult(RESULT_OK, null);
-        finish();
+
+        mCallback.onSignUpClick();
     }
 
     private void writeNewUser(String uid, String name, String email) {
@@ -106,10 +122,11 @@ public class RegisterActivity extends BaseActivity {
         mDatabase.child("users").child(uid).setValue(user);
     }
 
-    private void onSignupFailed() {
-        Toast.makeText(getBaseContext(), R.string.register_fail, Toast.LENGTH_LONG).show();
+    private void onSignUpFailed() {
+        Toast.makeText(getContext(), R.string.register_fail, Toast.LENGTH_LONG).show();
         mSignupBtn.setEnabled(true);
     }
+
     private boolean validate() {
         boolean valid = true;
 

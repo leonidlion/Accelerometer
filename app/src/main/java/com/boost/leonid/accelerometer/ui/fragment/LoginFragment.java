@@ -1,11 +1,13 @@
-package com.boost.leonid.accelerometer.ui;
+package com.boost.leonid.accelerometer.ui.fragment;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,16 +24,20 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class LoginActivity extends BaseActivity{
-    private static final String TAG = "LoginActivity";
-    private static final int LAYOUT = R.layout.activity_sign_in;
-    private static final int REQUEST_SIGN_UP = 0;
-
+public class LoginFragment extends BaseFragment {
+    private static final String TAG = "LoginFragment";
+    private static final int LAYOUT = R.layout.fragment_sign_in;
+    private LoginActionListener mCallback;
     private FirebaseAuth mAuth;
 
-    @BindView(R.id.input_email)
+    public interface LoginActionListener {
+        void onCreateNewUserClick();
+        void onSignInClick();
+    }
+
+    @BindView(R.id.et_input_email)
     EditText mInputEmailEdit;
-    @BindView(R.id.input_password)
+    @BindView(R.id.et_input_password)
     EditText mInputPassEdit;
     @BindView(R.id.btn_login)
     Button mLoginBtn;
@@ -45,28 +51,32 @@ public class LoginActivity extends BaseActivity{
                 signIn();
                 break;
             case R.id.link_signup:
-                Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-                startActivityForResult(intent, REQUEST_SIGN_UP);
-                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+                mCallback.onCreateNewUserClick();
                 break;
         }
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(LAYOUT);
-        ButterKnife.bind(this);
-
-        mAuth = FirebaseAuth.getInstance();
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (LoginActionListener) context;
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (mAuth.getCurrentUser() != null){
-            onAuthSuccess();
-        }
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(LAYOUT, container, false);
+        ButterKnife.bind(this, view);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        return view;
     }
 
     private void signIn(){
@@ -82,26 +92,21 @@ public class LoginActivity extends BaseActivity{
         String password = mInputPassEdit.getText().toString();
 
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         hideProgressDialog();
                         if (task.isSuccessful()){
-                            onAuthSuccess();
+                            mCallback.onSignInClick();
                         } else {
                             Toast.makeText(
-                                    LoginActivity.this,
+                                    getContext(),
                                     R.string.signin_fail,
                                     Toast.LENGTH_SHORT).show();
                             mLoginBtn.setEnabled(true);
                         }
                     }
                 });
-    }
-
-    private void onAuthSuccess(){
-        startActivity(new Intent(this, MainActivity.class));
-        this.finish();
     }
 
     private boolean validateForm(){
@@ -121,14 +126,5 @@ public class LoginActivity extends BaseActivity{
         }
 
         return result;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SIGN_UP){
-            if (resultCode == RESULT_OK){
-                onAuthSuccess();
-            }
-        }
     }
 }
