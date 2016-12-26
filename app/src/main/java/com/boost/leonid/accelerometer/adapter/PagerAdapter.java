@@ -6,16 +6,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 
+import com.boost.leonid.accelerometer.ui.fragment.DetailSessionFragment;
 import com.boost.leonid.accelerometer.ui.fragment.GraphFragment;
-import com.boost.leonid.accelerometer.ui.fragment.ListDatesFragment;
 
 public class PagerAdapter extends FragmentPagerAdapter {
     private static final String TAG         = "PagerAdapter";
-    private static final int FRAGMENT_LIST  = 0;
+    private static final int FRAGMENT_DETAIL_LIST = 0;
     private static final int FRAGMENT_GRAPH = 1;
 
     private Bundle mBundle;
-
     private final String[] mFragmentTitles;
 
     public PagerAdapter(FragmentManager fm, String[] titles, Bundle args){
@@ -40,9 +39,9 @@ public class PagerAdapter extends FragmentPagerAdapter {
         Log.d("ADAPTER", "getItem");
         Fragment fragment = null;
         switch (position){
-            case FRAGMENT_LIST:
-                Log.d(TAG, "fragment list");
-                fragment = new ListDatesFragment();
+            case FRAGMENT_DETAIL_LIST:
+                Log.d(TAG, "Detail fragment");
+                fragment = new DetailSessionFragment();
                 break;
             case FRAGMENT_GRAPH:
                 Log.d(TAG, "graph");

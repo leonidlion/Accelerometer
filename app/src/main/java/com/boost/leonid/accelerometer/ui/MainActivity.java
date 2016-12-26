@@ -2,83 +2,51 @@ package com.boost.leonid.accelerometer.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boost.leonid.accelerometer.R;
-import com.boost.leonid.accelerometer.adapter.PagerAdapter;
-import com.boost.leonid.accelerometer.model.Coordinates;
+import com.boost.leonid.accelerometer.model.AccelerometerData;
 import com.boost.leonid.accelerometer.service.AccService;
-import com.boost.leonid.accelerometer.ui.fragment.GraphFragment;
-import com.boost.leonid.accelerometer.ui.fragment.ListDatesFragment;
+import com.boost.leonid.accelerometer.ui.fragment.SessionListFragment;
+import com.boost.leonid.accelerometer.ui.fragment.TabFragment;
 import com.boost.leonid.accelerometer.ui.settings.SettingsActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements ListDatesFragment.ClickItemListener{
-    private static final String TAG = "MainActivity";
-
-    private PagerAdapter mPagerAdapter;
-    private static final int TAB_GRAPH    = 1;
-    private Bundle mBundle = new Bundle();
+public class MainActivity extends AppCompatActivity implements SessionListFragment.SessionListInteractionListener{
+    private static final String TAG             = "MainActivity";
+    private static final int LAYOUT             = R.layout.activity_main;
+    private static final int FRAME_CONTAINER    = R.id.main_frame_layout;
     private Menu mMenu;
-    /**
-     * Init views
-     */
-    @BindView(R.id.main_pager)
-    ViewPager mViewPager;
+
     @BindView(R.id.toolbar_actionbar)
     Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(LAYOUT);
+        ButterKnife.bind(this);
 
         initToolbar();
 
-        mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.tab_titles), mBundle);
-        mViewPager = (ViewPager) findViewById(R.id.main_pager);
-        mViewPager.setAdapter(mPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        getSupportFragmentManager().beginTransaction()
+                .add(FRAME_CONTAINER, new SessionListFragment())
+                .addToBackStack(null)
+                .commit();
     }
     private void initToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
     }
 
-    @Override
-    public void onItemClick(Coordinates model) {
-        Log.d(TAG, "onItemClick");
-
-        mBundle.clear();
-        mBundle.putFloatArray(GraphFragment.BUNDLE_X, listToArray(model.getX()));
-        mBundle.putFloatArray(GraphFragment.BUNDLE_Y, listToArray(model.getY()));
-        mBundle.putFloatArray(GraphFragment.BUNDLE_Z, listToArray(model.getZ()));
-        mBundle.putInt(GraphFragment.BUNDLE_INTERVAL, model.getInterval());
-
-        mPagerAdapter.updateGraph(mBundle);
-        mPagerAdapter.notifyDataSetChanged();
-        mViewPager.setCurrentItem(TAB_GRAPH, true);
-    }
-
-    private float[] listToArray(List<Float> list){
-        float[] coordinates = new float[list.size()];
-        for (int i = 0; i < coordinates.length; i++){
-            coordinates[i] = list.get(i);
-        }
-        return coordinates;
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -100,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements ListDatesFragment
             case R.id.menu_stop:
                 if (AccService.isServiceAlarmOn(this)){
                     AccService.stopAlarmManager();
-                    Log.d(TAG, "stopped");
                     mMenu.findItem(R.id.menu_start).setEnabled(true);
                     item.setEnabled(false);
                 }
@@ -117,4 +84,11 @@ public class MainActivity extends AppCompatActivity implements ListDatesFragment
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSessionItemClick(List<AccelerometerData> model) {
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.push_left_in, R.anim.push_left_out)
+                .replace(FRAME_CONTAINER, TabFragment.newInstance(model))
+                .commit();
+    }
 }

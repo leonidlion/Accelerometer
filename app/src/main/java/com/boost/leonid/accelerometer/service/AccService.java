@@ -19,8 +19,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.boost.leonid.accelerometer.Const;
 import com.boost.leonid.accelerometer.R;
-import com.boost.leonid.accelerometer.model.Coordinates;
+import com.boost.leonid.accelerometer.model.AccelerometerData;
+import com.boost.leonid.accelerometer.model.HistoryItem;
 import com.boost.leonid.accelerometer.ui.settings.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -45,15 +47,16 @@ public class AccService extends Service implements SensorEventListener{
 
     private FirebaseDatabase mDatabase;
     private SensorManager mSensorManager;
-    private Coordinates mCoordinates;
+    private HistoryItem mHistoryItem;
     private Handler mHandler;
     private Bundle mArgsForMessage;
     private int mInterval;
     private String mUser_id;
     private String mStartDate, mStartTime;
-    private String mRootKeyOfAccData;
+    private String mSessionId;
     private Map<String, Object> mMapToInsert = new HashMap<>();
     private int mRemainingTime;
+    private AccelerometerData mAccelerometerData;
 
     public static final String EXTRA_USER_ID = "user_id";
 
@@ -102,11 +105,11 @@ public class AccService extends Service implements SensorEventListener{
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        mRootKeyOfAccData = mDatabase.getReference().child("users").child(mUser_id).child("acc_data").push().getKey();
+        mSessionId = Const.getDataCoordinatesOfUserReference(mUser_id).push().getKey();
         mInterval = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_INTERVAL, getString(R.string.set_interval_def_value)));
         mRemainingTime = Integer.parseInt(mPreferences.getString(SettingsFragment.KEY_PREF_TIME_DURATION, getString(R.string.set_duration_def_value)));
-        mCoordinates = new Coordinates(mStartDate, mStartTime, Build.MODEL, mInterval);
-        Log.d(TAG, String.valueOf(mRemainingTime));
+
+        mHistoryItem = new HistoryItem(mStartDate, mStartTime, mInterval,Build.MODEL);
         mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -137,9 +140,12 @@ public class AccService extends Service implements SensorEventListener{
                         Log.d(TAG, String.valueOf(mRemainingTime));
                         if (mRemainingTime >= 0) {
                             Log.d(TAG, "handleMessage");
-                            mCoordinates.addCoord(msg.getData().getFloatArray(EXTRA_MSG_ARRAY));
+                            mAccelerometerData = new AccelerometerData();
+                            mAccelerometerData.setUnixTime(System.currentTimeMillis());
+                            mAccelerometerData.setFloatArrayToVariables(msg.getData().getFloatArray(EXTRA_MSG_ARRAY));
+                            mHistoryItem.addAccelerometerData(mAccelerometerData);
                             mMapToInsert.clear();
-                            mMapToInsert.put("/users/" + mUser_id + "/acc_data/" + mRootKeyOfAccData, mCoordinates.allToMap());
+                            mMapToInsert.put(Const.getPathToDataForMapInsert(mUser_id, mSessionId), mHistoryItem.allToMap());
                             mDatabase.getReference().updateChildren(mMapToInsert);
                             this.removeCallbacksAndMessages(null);
                         }else {

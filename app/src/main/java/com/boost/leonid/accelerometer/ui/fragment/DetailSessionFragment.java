@@ -1,7 +1,6 @@
 package com.boost.leonid.accelerometer.ui.fragment;
 
 import android.content.Context;
-import android.icu.text.LocaleDisplayNames;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,9 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.boost.leonid.accelerometer.Const;
 import com.boost.leonid.accelerometer.R;
 import com.boost.leonid.accelerometer.adapter.ListDatesHolder;
-import com.boost.leonid.accelerometer.model.Coordinates;
+import com.boost.leonid.accelerometer.model.HistoryItem;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -22,36 +22,33 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
 
-public class ListDatesFragment extends Fragment {
-    private static final String TAG = "ListDatesFragment";
+public class DetailSessionFragment extends Fragment {
+    private static final String TAG = "DetailSessionFragment";
     private static final int LAYOUT = R.layout.fragment_list_dates;
-    private FirebaseRecyclerAdapter<Coordinates, ListDatesHolder> mAdapter;
+    private FirebaseRecyclerAdapter<HistoryItem, ListDatesHolder> mAdapter;
     private RecyclerView mRecycler;
-    private DatabaseReference mDatabase;
-    private ClickItemListener mCallback;
+//    private ClickItemListener mCallback;
 
-    public interface ClickItemListener{
-        void onItemClick(Coordinates refKey);
-    }
+/*    public interface ClickItemListener{
+        void onItemClick(HistoryItem refKey);
+    }*/
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mCallback = (ClickItemListener) context;
+//        mCallback = (ClickItemListener) context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mCallback = null;
+//        mCallback = null;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(LAYOUT, container, false);
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         mRecycler = (RecyclerView) view.findViewById(R.id.list_dates_recycler);
         mRecycler.setHasFixedSize(true);
@@ -65,11 +62,11 @@ public class ListDatesFragment extends Fragment {
 
         mRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        Query query = getQuery(mDatabase);
+        Query query = getQuery();
         Log.d(TAG, query.toString());
-        mAdapter = new FirebaseRecyclerAdapter<Coordinates, ListDatesHolder>(Coordinates.class, R.layout.list_dates_item, ListDatesHolder.class, query) {
+        mAdapter = new FirebaseRecyclerAdapter<HistoryItem, ListDatesHolder>(HistoryItem.class, R.layout.list_dates_item, ListDatesHolder.class, query) {
             @Override
-            protected void populateViewHolder(ListDatesHolder viewHolder, final Coordinates model, int position) {
+            protected void populateViewHolder(ListDatesHolder viewHolder, final HistoryItem model, int position) {
                 final DatabaseReference ref = getRef(position);
                 final String refKey = ref.getKey();
 
@@ -77,7 +74,7 @@ public class ListDatesFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         Log.d(TAG, "click " + refKey);
-                        mCallback.onItemClick(model);
+//                        mCallback.onItemClick(model);
                     }
                 });
                 viewHolder.bind(model);
@@ -86,7 +83,7 @@ public class ListDatesFragment extends Fragment {
         mRecycler.setAdapter(mAdapter);
     }
 
-    private Query getQuery(DatabaseReference database) {
-        return database.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("acc_data");
+    private Query getQuery() {
+        return Const.getDataCoordinatesOfUserReference(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 }
