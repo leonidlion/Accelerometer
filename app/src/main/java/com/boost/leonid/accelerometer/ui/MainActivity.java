@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,7 +23,7 @@ import java.util.List;
 
 import butterknife.BindView;
 
-public class MainActivity extends BaseActivity implements ListDatesFragment.ClickItemListener{
+public class MainActivity extends AppCompatActivity implements ListDatesFragment.ClickItemListener{
     private static final String TAG = "MainActivity";
 
     private PagerAdapter mPagerAdapter;
@@ -106,7 +107,7 @@ public class MainActivity extends BaseActivity implements ListDatesFragment.Clic
                 break;
             case R.id.menu_logout:
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, AuthorizeActivity.class));
                 finish();
                 break;
             case R.id.menu_settings:
