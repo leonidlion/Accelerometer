@@ -29,7 +29,7 @@
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:inputType="textCapWords"
-                      android:hint="Name" />
+                      android:hint="@string/sign_up_name" />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Email Label -->
@@ -38,11 +38,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_email"
+            <EditText android:id="@+id/et_input_email"
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:inputType="textEmailAddress"
-                      android:hint="Email" />
+                      android:hint="@string/sign_in_email" />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Password Label -->
@@ -51,11 +51,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_password"
+            <EditText android:id="@+id/et_input_password"
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:inputType="textPassword"
-                      android:hint="Password"/>
+                      android:hint="@string/sign_in_pass"/>
         </android.support.design.widget.TextInputLayout>
 
         <!-- Signup Button -->
@@ -66,15 +66,15 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
-            android:text="Create Account"/>
+            android:text="@string/sign_up_create_account"/>
 
         <TextView android:id="@+id/link_login"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_marginBottom="24dp"
-                  android:text="Already a member? Login"
+                  android:text="@string/sign_up_already"
                   android:gravity="center"
-                  android:textSize="16dip"/>
+                  android:textSize="16sp"/>
 
     </LinearLayout>
 </ScrollView>

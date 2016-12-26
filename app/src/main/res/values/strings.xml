@@ -61,4 +61,14 @@
     <string name="graph_title_choice_axis">Please choice axis</string>
     <!--End graph no data titles-->
 
+    <!--Authorize labels-->
+    <string name="sign_in_email">Email</string>
+    <string name="sign_in_pass">Password</string>
+    <string name="sign_in_login">Login</string>
+    <string name="sign_in_create">No account yet? Create one</string>
+    <string name="sign_up_name">Name</string>
+    <string name="sign_up_create_account">Create Account</string>
+    <string name="sign_up_already">Already a member? Login</string>
+    <!--End authorize labels-->
+
 </resources>
