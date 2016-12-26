@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.boost.leonid.accelerometer.R;
-import com.boost.leonid.accelerometer.model.Coordinates;
+import com.boost.leonid.accelerometer.model.HistoryItem;
 
 
 public class ListDatesHolder extends RecyclerView.ViewHolder {
@@ -18,8 +18,8 @@ public class ListDatesHolder extends RecyclerView.ViewHolder {
         mDate = (TextView) itemView.findViewById(R.id.list_date);
         mTime = (TextView) itemView.findViewById(R.id.list_time);
     }
-    public void bind(Coordinates coordinates){
-        mDate.setText(coordinates.getDate());
-        mTime.setText(coordinates.getStartTime());
+    public void bind(HistoryItem historyItem){
+        mDate.setText(historyItem.getStartDate());
+        mTime.setText(historyItem.getStartTime());
     }
 }
